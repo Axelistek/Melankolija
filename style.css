@@ -1,0 +1,9 @@
+/* Add spacing between images and prevent overlap */
+.photo {
+    margin: 30px;
+    box-sizing: border-box;
+}
+
+.container {
+    padding: 40px;
+}

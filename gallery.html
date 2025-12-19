@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M E L A N K O N I J A??????</title>
+
+    <style type="text/css">
+        * {
+            cursor: url(https://cur.cursors-4u.net/others/oth-9/oth829.ani),
+                    url(https://cur.cursors-4u.net/others/oth-9/oth829.png),
+                    auto !important;
+        }
+    </style>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            min-height: 200vh;
+            background-image: url('Image/Galerija_Pozadina.gif');
+            background-size: cover;
+            background-attachment: scroll;
+            background-position: top center;
+            background-repeat: repeat-y;
+            overflow-x: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            min-height: 200vh;
+        }
+
+        .photo {
+            position: fixed;
+            width: 310px;
+            height: 430px;
+            cursor: pointer;
+            border-radius: 0px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .photo.dragging {
+            cursor: grabbing !important;
+            z-index: 999;
+        }
+
+        .photo:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        .photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+        }
+
+        .photo .hover-gif {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+        }
+
+        .photo:hover .hover-gif {
+            display: block;
+        }
+
+        .photo:hover img {
+            display: none;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.1; }
+            10% { opacity: 0.05; }
+            20% { opacity: 0.08; }
+            30% { opacity: 0.4; }
+            40% { opacity: 0.1; }
+            50% { opacity: 1; }
+            60% { opacity: 0.1; }
+            70% { opacity: 0.3; }
+            80% { opacity: 0.75; }
+            90% { opacity: 0.65; }
+            100% { opacity: 0.1; }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translate(0, 0) scale(1.1); }
+            10% { transform: translate(-2px, -2px) scale(1.1); }
+            20% { transform: translate(2px, 2px) scale(1.1); }
+            30% { transform: translate(-2px, 2px) scale(1.1); }
+            40% { transform: translate(2px, -2px) scale(1.1); }
+            50% { transform: translate(-1px, -1px) scale(1.1); }
+            60% { transform: translate(1px, 1px) scale(1.1); }
+            70% { transform: translate(-1px, 1px) scale(1.1); }
+            80% { transform: translate(1px, -1px) scale(1.1); }
+            90% { transform: translate(0, 0) scale(1.1); }
+        }
+
+        .photo::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(18, 16, 16, 0.3);
+            opacity: 0;
+            z-index: 2;
+            pointer-events: none;
+            animation: flicker 0.1s infinite;
+        }
+
+        .photo::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.5) 50%),
+                linear-gradient(90deg,
+                    rgba(255,0,0,0.15),
+                    rgba(0,255,0,0.1),
+                    rgba(0,0,255,0.15));
+            background-size: 100% 2px, 3px 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.01);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            max-height: 100vh;
+            object-fit: contain;
+        }
+
+        .close-modal {
+            position: fixed;
+            top: 20px;
+            right: 40px;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            z-index: 1001;
+            background-image: url('Image/x_normal.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+        .close-modal:hover {
+            background-image: url('Image/x_exit.png');
+        }
+        
+        .close-modal:active {
+            background-image: url('Image/x_exit.png');
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container"></div>
+
+<audio id="backgroundMusic" autoplay loop volume="0.01">
+    <source src="Audio\background_06.wav" type="audio/wav">
+    Your browser does not support the audio element.
+</audio>
+
+<audio id="hoverSound">
+    <source src="Audio\click_06.wav" type="audio/wav">
+</audio>
+
+<audio id="clickSound">
+    <source src="Audio\click_03.wav" type="audio/wav">
+</audio>
+
+<audio id="modalMusic">
+    <source src="" type="audio/wav">
+</audio>
+
+<audio id="modalClickSound">
+    <source src="" type="audio/wav">
+</audio>
+
+<div id="fullscreenModal" class="modal">
+    <div class="close-modal"></div>
+    <div class="modal-content">
+        <img id="modalImage" src="" alt="">
+    </div>
+</div>
+
+<script>
+    const PHOTO_WIDTH = 310;
+    const PHOTO_HEIGHT = 430;
+    const SPACING = 300; // Increased for more distance
+
+    const photos = [
+        { image: 'Image/Slika_01.JPG.jpg', gif: 'Image/SlikaGalerija_06.gif', music: '', clickSound: 'Audio/click_011.mp3' },
+        { image: 'Image/Slika_02.JPG', gif: 'Image/SlikaGalerija_01.gif', music: '', clickSound: 'Audio/click_013.mp3' },
+        { image: 'Image/Slika_03.JPG.jpg', gif: 'Image/SlikaGalerija_07.gif', music: '', clickSound: 'Audio/click_010.mp3' },
+        { image: 'Image/Slika_04.png', gif: 'Image/SlikaGalerija_02.gif', music: '', clickSound: 'Audio/click_015.wav' },
+        { image: 'Image/Slika_07.jpg', gif: 'Image/SlikaGalerija_08.gif', music: '', clickSound: 'Audio/click_04.wav' }
+    ];
+
+    const container = document.querySelector('.container');
+    const modal = document.getElementById('fullscreenModal');
+    const modalImage = document.getElementById('modalImage');
+    const closeModal = document.querySelector('.close-modal');
+    const hoverSound = document.getElementById('hoverSound');
+    const clickSound = document.getElementById('clickSound');
+    const backgroundMusic = document.getElementById('backgroundMusic');
+    const modalMusic = document.getElementById('modalMusic');
+    const modalClickSound = document.getElementById('modalClickSound');
+
+    let draggedElement = null;
+    let offsetX = 0;
+    let offsetY = 0;
+    let isDragging = false;
+    let wasDragged = false;
+    let photoElements = [];
+    let photoData = {}; // Store position and velocity for each photo
+
+    function isColliding(r1, r2) {
+        return !(r1.right < r2.left ||
+                 r1.left > r2.right ||
+                 r1.bottom < r2.top ||
+                 r1.top > r2.bottom);
+    }
+
+    let currentPhoto = null;
+
+    function bounceVector(vel1, vel2, pos1, pos2) {
+        // Calculate bounce vectors based on collision
+        const dx = pos2.x - pos1.x;
+        const dy = pos2.y - pos1.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        
+        if (dist === 0) return { vx: vel1.vx * -0.4, vy: vel1.vy * -0.4 };
+        
+        const nx = dx / dist;
+        const ny = dy / dist;
+        
+        // Reflect velocity
+        const dot = vel1.vx * nx + vel1.vy * ny;
+        return {
+            vx: (vel1.vx - 2*dot*nx) * 0.5,
+            vy: (vel1.vy - 2*dot*ny) * 0.5
+        };
+    }
+
+    function createPhotos() {
+        photos.forEach((photo, i) => {
+            const el = document.createElement('div');
+            el.className = 'photo';
+            el.innerHTML = `
+                <img src="${photo.image}">
+                <img class="hover-gif" src="${photo.gif}">
+            `;
+            container.appendChild(el);
+            photoElements.push(el);
+            
+            // Initialize spread-out positions
+            const x = (i % 3) * (window.innerWidth / 3) + Math.random() * 100;
+            const y = Math.floor(i / 3) * 200 + Math.random() * 100;
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            
+            // Store photo data with velocity
+            photoData[i] = {
+                el: el,
+                vx: (Math.random() - 0.5) * 0.2,
+                vy: (Math.random() - 0.5) * 0.2,
+                x: x,
+                y: y
+            };
+            
+            animatePhoto(el, i);
+
+            el.addEventListener('mousedown', e => {
+                isDragging = true;
+                wasDragged = false;
+                draggedElement = el;
+                const r = el.getBoundingClientRect();
+                offsetX = e.clientX - r.left;
+                offsetY = e.clientY - r.top;
+                el.classList.add('dragging');
+            });
+
+            el.addEventListener('mouseenter', () => {
+                hoverSound.currentTime = 0;
+                hoverSound.play().catch(() => {});
+            });
+
+            el.addEventListener('click', () => {
+                clickSound.currentTime = 0;
+                clickSound.play().catch(() => {});
+                if (!wasDragged) {
+                    currentPhoto = photo;
+                    modalImage.src = photo.gif;
+                    modal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                    
+                    // Stop background music and play modal music
+                    backgroundMusic.pause();
+                    modalMusic.src = photo.music;
+                    modalMusic.currentTime = 0;
+                    modalMusic.play().catch(() => {});
+                }
+            });
+
+            // Add hover event for floating out effect
+            el.addEventListener('mouseenter', () => {
+                photoData[i].floatingOut = true;
+            });
+
+            el.addEventListener('mouseleave', () => {
+                photoData[i].floatingOut = false;
+            });
+        });
+    }
+
+    document.addEventListener('mousemove', e => {
+        if (!isDragging || !draggedElement) return;
+        wasDragged = true;
+
+        let x = e.clientX - offsetX;
+        let y = e.clientY - offsetY;
+
+        x = Math.max(0, Math.min(x, window.innerWidth - PHOTO_WIDTH));
+        y = Math.max(0, Math.min(y, window.innerHeight - PHOTO_HEIGHT));
+
+        draggedElement.style.left = x + 'px';
+        draggedElement.style.top = y + 'px';
+        
+        // Update photoData with new position
+        for (let i = 0; i < photoElements.length; i++) {
+            if (photoElements[i] === draggedElement) {
+                photoData[i].x = x;
+                photoData[i].y = y;
+                break;
+            }
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (draggedElement) {
+            draggedElement.classList.remove('dragging');
+            // Reset velocity to continue smoothly from drag
+            for (let i = 0; i < photoElements.length; i++) {
+                if (photoElements[i] === draggedElement) {
+                    photoData[i].vx = (Math.random() - 0.5) * 0.15;
+                    photoData[i].vy = (Math.random() - 0.5) * 0.15;
+                    break;
+                }
+            }
+        }
+        isDragging = false;
+        draggedElement = null;
+    });
+
+    function animatePhoto(el, index) {
+        function step(timestamp) {
+            if (draggedElement === el) {
+                requestAnimationFrame(step);
+                return;
+            }
+
+            const data = photoData[index];
+            if (!data) return;
+
+            // Apply velocity
+            data.x += data.vx;
+            data.y += data.vy;
+
+            // Boundary bouncing
+            if (data.x <= 0 || data.x + PHOTO_WIDTH >= window.innerWidth) {
+                data.vx *= -0.95;
+                data.x = Math.max(0, Math.min(data.x, window.innerWidth - PHOTO_WIDTH));
+            }
+            if (data.y <= 0 || data.y + PHOTO_HEIGHT >= window.innerHeight) {
+                data.vy *= -0.95;
+                data.y = Math.max(0, Math.min(data.y, window.innerHeight - PHOTO_HEIGHT));
+            }
+
+            // Apply floating out effect when hovering
+            if (data.floatingOut) {
+                // Move outward from center with gentle velocity
+                const centerX = window.innerWidth / 2;
+                const centerY = window.innerHeight / 2;
+                const dx = (data.x + PHOTO_WIDTH/2) - centerX;
+                const dy = (data.y + PHOTO_HEIGHT/2) - centerY;
+                const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+                
+                data.vx = (dx / dist) * 0.5;
+                data.vy = (dy / dist) * 0.5;
+            }
+
+            // No collision detection - allow overlapping
+
+            el.style.left = Math.round(data.x) + 'px';
+            el.style.top = Math.round(data.y) + 'px';
+
+            requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+    }
+
+    closeModal.onclick = () => {
+        clickSound.currentTime = 0;
+        clickSound.play().catch(() => {});
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+        
+        // Stop modal music and resume background music
+        modalMusic.pause();
+        backgroundMusic.play().catch(() => {});
+        
+        // Stop any playing modal click sounds
+        modalClickSound.pause();
+        modalClickSound.currentTime = 0;
+    };
+    
+    modalImage.addEventListener('click', () => {
+        if (currentPhoto && currentPhoto.clickSound) {
+            modalClickSound.src = currentPhoto.clickSound;
+            modalClickSound.currentTime = 0;
+            modalClickSound.play().catch(() => {});
+        }
+    });
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeModal.onclick();
+    });
+
+    createPhotos();
+</script>
+
+</body>
+</html>

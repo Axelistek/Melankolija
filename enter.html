@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P O V R Š I N A???? </title>
+    <script type="text/javascript">
+        message = " P O V R Š I N A???? ";
+        function step() {
+            message = message.substr(1) + message.substr(0,1);
+            document.title = message.substr(0,15);
+        }
+        
+        // Idle cursor detection
+        let idleTimer = null;
+        let isIdle = false;
+        const IDLE_TIMEOUT = 3000; // 3 seconds
+        
+        function resetIdleTimer() {
+            clearTimeout(idleTimer);
+            if (isIdle) {
+                isIdle = false;
+                document.body.classList.remove('idle');
+            }
+            idleTimer = setTimeout(function() {
+                isIdle = true;
+                document.body.classList.add('idle');
+            }, IDLE_TIMEOUT);
+        }
+        
+        document.addEventListener('mousemove', resetIdleTimer);
+        document.addEventListener('mousedown', resetIdleTimer);
+        document.addEventListener('keydown', resetIdleTimer);
+        
+        resetIdleTimer();
+    </script>
+    <style type="text/css">
+        * {
+            cursor: url(http://www.rw-designer.com/cursor-extern.php?id=22910), auto;
+        }
+        
+        body.idle * {
+            cursor: url(https://cur.cursors-4u.net/others/oth-9/oth830.cur), auto !important;
+        }
+        
+        *:hover {
+            cursor: url(https://cur.cursors-4u.net/others/oth-9/oth831.cur), auto !important;
+        }
+        
+        *:active {
+            cursor: url(https://cur.cursors-4u.net/others/oth-9/oth831.cur), auto !important;
+        }
+    </style>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            background-image: url('Image/StartMenu.gif');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: Arial, sans-serif;
+        }
+
+        .clickable-area {
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            width: 100%;
+            height: 100%;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            25% {
+                transform: translateY(-20px) rotate(2deg);
+            }
+            50% {
+                transform: translateY(10px) rotate(-2deg);
+            }
+            75% {
+                transform: translateY(-10px) rotate(1deg);
+            }
+        }
+
+        .clickable-area:hover {
+            opacity: 0.8;
+        }
+
+        /* Example clickable areas - adjust positions and sizes as needed */
+        .area1 {
+            top: 20%;
+            left: 40%;
+            width: 200px;
+            height: 150px;
+        }
+
+        .area2 {
+            top: 90%;
+            left: 50%;
+            width: 200px;
+            height: 150px;
+            animation-delay: 2s;
+        }
+
+
+
+       
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .overlay-image {
+            position: fixed;
+            display: none;
+            z-index: 100;
+            /* Adjust these values to position the image */
+            left: 50%;
+            top: 60%;
+            transform: translate(-50%, -50%);
+            max-width: 800px;
+            max-height: 400px;
+        }
+    </style>
+</head>
+<body onload="setInterval(step,100)">
+    <!-- Background music -->
+    <audio autoplay loop volume="0.3">
+        <source src="Audio\background_07.wav" type="audio/wav">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- Overlay image -->
+    <img class="overlay-image" id="overlayImage" src="Image\melan.png" alt="Overlay">
+
+    <!-- Click sound effect -->
+    <audio id="clickSound">
+        <source src="Audio\click_03.wav" type="audio/wav">
+    </audio>
+
+    <!-- Clickable area -->
+    <div class="clickable-area area1" id="clickArea"></div>
+
+    <script>
+        const clickArea = document.getElementById('clickArea');
+        const overlayImage = document.getElementById('overlayImage');
+        const originalBg = "url('Image/StartMenu.gif')";
+        const hoverBg = "url('Image/StartMenuClick.gif')";
+
+        clickArea.addEventListener('mouseenter', function() {
+            // Change to hover background
+            document.body.style.backgroundImage = hoverBg;
+            // Show overlay image
+            overlayImage.style.display = 'block';
+        });
+
+        clickArea.addEventListener('mouseleave', function() {
+            // Change back to original background
+            document.body.style.backgroundImage = originalBg;
+            // Hide overlay image
+            overlayImage.style.display = 'none';
+        });
+
+        clickArea.addEventListener('click', function() {
+            // Play click sound
+            const clickSound = document.getElementById('clickSound');
+            clickSound.currentTime = 0;
+            clickSound.play().catch(() => {});
+            
+            // Keep background and overlay image visible
+            document.body.style.backgroundImage = hoverBg;
+            overlayImage.style.display = 'block';
+            
+            // Navigate to gallery after a delay (optional)
+            setTimeout(function() {
+                window.location.href = 'gallery.html';
+            }, 2000);
+        });
+    </script>
+
+</body>
+</html>
